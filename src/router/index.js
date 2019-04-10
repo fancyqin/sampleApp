@@ -1,6 +1,6 @@
 import React from 'react'
 
-import {createAppContainer,createBottomTabNavigator,createStackNavigator} from 'react-navigation'
+import {createAppContainer,createBottomTabNavigator,createStackNavigator,KeyBoardHiddenTabBar} from 'react-navigation'
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Home from '../view/home'
 import List from '../view/list'
@@ -11,6 +11,7 @@ let Tab = createBottomTabNavigator({
         screen: Home,
         navigationOptions: {
             tabBarLabel: 'Home',
+            headerTitle:'ffff'
         },
     },
     List: {
@@ -20,6 +21,7 @@ let Tab = createBottomTabNavigator({
         },
     }
 }, {
+    tabBarComponent: KeyBoardHiddenTabBar,
     defaultNavigationOptions: ({ navigation }) => ({
         tabBarIcon: ({ focused, horizontal, tintColor }) => {
             const { routeName } = navigation.state;
@@ -35,8 +37,8 @@ let Tab = createBottomTabNavigator({
     animationEnabled: false,
     swipeEnabled: false,
     tabBarOptions: {
-        activeTintColor: '#f90',
-        inactiveTintColor: '#555',
+        activeTintColor: '#24292e',
+        inactiveTintColor: '#888',
         labelStyle: {
             fontSize: 12,
         },
@@ -50,7 +52,26 @@ let Tab = createBottomTabNavigator({
 
 const AppNavigator = createStackNavigator({
     Tab:{
-        screen:Tab
+        screen:Tab,
+        navigationOptions: {
+            // header:null
+            headerTitle:'sampleApp',
+            headerStyle: {
+                backgroundColor: '#24292e',
+                height: 44,                                                   
+                elevation: 0, //remove shadow on Android
+                shadowOpacity: 0, //remove shadow on iOS
+                borderBottomWidth: 0
+            },
+            headerTitleStyle: {
+                fontWeight: 'normal',
+                color: '#fff',
+                fontSize: 19,
+                alignSelf: 'center',
+                textAlign: 'center',
+                flexGrow: 1
+            },
+        }
     },
     Detail:{
         screen: Detail

@@ -7,10 +7,16 @@
  */
 
 import React, {Component} from 'react';
-import {Platform, StyleSheet, Text, View} from 'react-native';
+import {Platform, StyleSheet, Text, View,StatusBar} from 'react-native';
 import AppContainer from './src/router'
 
 export default class App extends Component{
+  
+  constructor(){
+    super()
+    StatusBar.setBarStyle('light-content');
+  }
+
   render() {
     return <AppContainer />
   }

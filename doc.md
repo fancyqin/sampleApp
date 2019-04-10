@@ -1,4 +1,4 @@
-# 在Hello World之后（React Native项目搭建）
+## 在Hello World之后（React Native项目搭建）
 
 
 很多小伙伴对React Native的了解估计都只停留在 react-native init sampleApp 步骤，环境搭好了，却不知道怎么开始下一步。笔者这篇文章就是告诉大家Hello World之后的故事。
@@ -24,7 +24,7 @@ react-navigation是RN官方推荐也是比较流行的一个方案。
 
 我们知道RN用的fetch来处理网络请求。
 
-rn-fetch-bolb登场了
+rn-fetch-blob登场了
 
 
 
