@@ -11,7 +11,7 @@ export default class Home extends Component {
   render() {
     return (
       <View>
-        <Text> List </Text>
+        <Text onPress={()=>this.props.navigation.navigate('Detail')}> List </Text>
       </View>
     );
   }
