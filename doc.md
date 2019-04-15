@@ -30,12 +30,12 @@ import React, { Component } from 'react';
 import { View, Text } from 'react-native';
 
 export default class Home extends Component {
-  constructor(props) {
-    super(props);
-  }
-  render() {
-    return <Text> Home </Text>
-  }
+    constructor(props) {
+        super(props);
+    }
+    render() {
+        return <Text> Home </Text>
+    }
 }
 ```
 
@@ -50,10 +50,9 @@ export default class Home extends Component {
 
 ```ts
 import React from 'react'
-
 import {createAppContainer,createBottomTabNavigator,createStackNavigator,KeyBoardHiddenTabBar} from 'react-navigation'
 import Ionicons from 'react-native-vector-icons/Ionicons';
-
+//引入各个页面
 import Home from '../view/home'
 import List from '../view/list'
 import Detail from '../view/detail'
@@ -67,13 +66,13 @@ const TabNavigator = createBottomTabNavigator(
         screen: Home,
         //导航选项
         navigationOptions: {
-            tabBarLabel: 'Home',
+            tabBarLabel: 'Launch',
         },
     },
     List: {
         screen: List,
         navigationOptions: {
-            tabBarLabel: 'List',
+            tabBarLabel: 'Rockets',
         },
     }
 }, 
@@ -85,9 +84,9 @@ const TabNavigator = createBottomTabNavigator(
             const { routeName } = navigation.state;
             let iconName;
             if (routeName === 'Home') {
-                iconName = 'ios-home';
+                iconName = 'md-planet';
             } else if (routeName === 'List') {
-                iconName = `ios-list`;
+                iconName = `md-rocket`;
             }
             return <Ionicons name={iconName} size={25} color={tintColor} />
         },
@@ -109,6 +108,25 @@ const TabNavigator = createBottomTabNavigator(
     //默认初始路由
     initialRouteName: 'Home'
 })
+//公共头部样式提出
+const headerStyles = {
+    headerStyle: {
+        backgroundColor: '#24292e',
+        height: 44,                                      
+        elevation: 0, 
+        shadowOpacity: 0, 
+        borderBottomWidth: 0
+    },
+    headerTitleStyle: {
+        fontWeight: 'normal',
+        color: '#fff',
+        fontSize: 19,
+        alignSelf: 'center',
+        textAlign: 'center',
+        flexGrow: 1
+    }
+}
+
 //创建一个Stack导航，其中Tab路由的screen即是Tab导航
 const AppNavigator = createStackNavigator({
     Tab:{
@@ -116,33 +134,32 @@ const AppNavigator = createStackNavigator({
         //导航选项
         navigationOptions: {
             headerTitle:'SPACE X',
-            headerStyle: {
-                backgroundColor: '#24292e',
-                height: 44,                                      
-                elevation: 0, 
-                shadowOpacity: 0, 
-                borderBottomWidth: 0
-            },
-            headerTitleStyle: {
-                fontWeight: 'normal',
-                color: '#fff',
-                fontSize: 19,
-                alignSelf: 'center',
-                textAlign: 'center',
-                flexGrow: 1
-            },
+            ...headerStyles
         }
     },
     Detail:{
-        screen: Detail
+        screen: Detail,
+        //导航选项
+        navigationOptions: ({navigation}) => {
+            return {
+                headerTitle:'Rocket Detail',
+                headerLeft: <Ionicons onPress={()=> navigation.goBack()} style={{marginLeft:15}} name='ios-arrow-back' color="#fff" size={28} />,
+                ...headerStyles
+            }
+        }
     }
+},{
+    initialRouteName: 'Tab'
 })
 //使用createAppContainer返回Component给入口App.js使用
 export default createAppContainer(AppNavigator);
 
 ```
 
-然后我们修改入口App.js
+> 上面文件使用了react-native-vector-icons字体图标库组件，该组件在安装后除了link大法之后还需要其他操作，比如ios需要拖动库中的Fonts文件夹到Xcode目录中并修改Info.plist文件。具体出门右转[文档](https://github.com/oblador/react-native-vector-icons#installation)
+
+
+然后修改入口App.js
 
 ```js
 import React, {Component} from 'react';
@@ -150,30 +167,88 @@ import {StatusBar} from 'react-native';
 import AppContainer from './src/router'
 
 export default class App extends Component{
-  
-  constructor(){
-    super()
-    //因为页头设置是深色，所以设置了StatusBar为白色字体
-    StatusBar.setBarStyle('light-content');
-  }
-
-  render() {
-    return <AppContainer />
-  }
+	constructor(){
+		super()
+		//因为页头设置是深色，所以设置了StatusBar为白色字体
+		StatusBar.setBarStyle('light-content');
+	}
+	render() {
+		return <AppContainer />
+	}
 }
+```
+这样以来我们就做好了一个简单的路由系统。路由中的页面的props会有navigation对象，我们可以通过它进行页面跳转，参数传递等等。
 
+例如，在view中list页面，给Text添加onPress属性。
+
+```js
+    <Text onPress={()=>this.props.navigation.navigate('Detail')}> Go To Detail </Text>
 ```
 
-
-
-> 上面文件使用了react-native-vector-icons字体图标库组件，该组件在安装后除了link大法之后还需要其他操作，比如ios需要拖动库中的Fonts文件夹到Xcode目录中并修改Info.plist文件。具体出门右转[文档](https://github.com/oblador/react-native-vector-icons#installation)
+Reload一下，你就能看到一个简单的架子了，点击Tab的图标进行Tab跳转，点击List页面中 Go To Detail 可以跳转到Detail页面。
 
 
 ## 接口数据层处理
 
 我们知道RN用的fetch来处理网络请求。
 
-rn-fetch-blob登场了
+dao目录主要是用于我们数据处理
+
+我们可以在dao文件夹封装一层叫做BaseDao的父类，对请求的参数、url、headers、错误处理、超时处理等做一些统一的处理。
+
+```ts
+import {Alert} from 'react-native'
+import RNFetchBlob from 'rn-fetch-blob'
+const qs = require('qs');
+
+
+const APIVersion = 'v3'
+export default class BaseDao {
+    constructor() {
+        this.baseURL = 'https://api.spacexdata.com/';
+    }
+    request(requestArgs) {
+        return new Promise(async (resolve, reject) => {
+            let { url, method, headers, params, data, enctype } = requestArgs;
+            //url
+            url = this.baseURL + APIVersion + url;
+            
+            if (params) {
+                //序列化query参数
+                url = url + '?' + qs.stringify(params, { arrayFormat: 'repeat' });
+            }
+
+            try {
+                let task = RNFetchBlob.fetch(method, url, {
+                    //headers 处理
+                    ...headers,
+                    'Content-Type': method === 'POST' ? (enctype ? enctype : 'multipart/form-data') :'application/json'
+                },data);
+                //超时统一处理
+                let timer = setTimeout(() => {
+                    Alert('Request Over Time')
+                }, 60000);
+                task.then(result => {
+                    timer && clearTimeout(timer);
+                    if(result && result.error){
+                        reject(result.error);
+                    }else{
+                        resolve(result)
+                    }
+                }).catch(err => {
+                    reject(err);
+                });
+            } catch(err) {
+                reject(err);
+            }
+        });
+    }
+
+
+}
+```
+
+rn-fetch-blob
 
 
 
