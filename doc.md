@@ -167,14 +167,14 @@ import {StatusBar} from 'react-native';
 import AppContainer from './src/router'
 
 export default class App extends Component{
-	constructor(){
-		super()
-		//因为页头设置是深色，所以设置了StatusBar为白色字体
-		StatusBar.setBarStyle('light-content');
-	}
-	render() {
-		return <AppContainer />
-	}
+    constructor(){
+        super()
+        //因为页头设置是深色，所以设置了StatusBar为白色字体
+        StatusBar.setBarStyle('light-content');
+    }
+    render() {
+        return <AppContainer />
+    }
 }
 ```
 这样以来我们就做好了一个简单的路由系统。路由中的页面的props会有navigation对象，我们可以通过它进行页面跳转，参数传递等等。
@@ -197,10 +197,10 @@ dao目录主要是用于我们数据处理
 我们可以在dao文件夹封装一层叫做BaseDao的父类，对请求的参数、url、headers、错误处理、超时处理等做一些统一的处理。
 
 ```ts
+//BaseDao.js
 import {Alert} from 'react-native'
 import RNFetchBlob from 'rn-fetch-blob'
 const qs = require('qs');
-
 
 const APIVersion = 'v3'
 export default class BaseDao {
@@ -228,12 +228,13 @@ export default class BaseDao {
                 let timer = setTimeout(() => {
                     Alert('Request Over Time')
                 }, 60000);
-                task.then(result => {
+                task.then(res => {
                     timer && clearTimeout(timer);
-                    if(result && result.error){
-                        reject(result.error);
+                    let json = res.json();
+                    if(json && json.error){
+                        reject(json.error);
                     }else{
-                        resolve(result)
+                        resolve(json)
                     }
                 }).catch(err => {
                     reject(err);
@@ -243,17 +244,47 @@ export default class BaseDao {
             }
         });
     }
-
-
 }
 ```
 
-rn-fetch-blob
+> 上述代码我用到了rn-fetch-blob这个库，它不仅可以处理一些接口请求，还有文件系统，可以处理文件上传，文件的本地存储等等。
 
+例如，针对home页面，我们可以新建HomeDao继承自BaseDao。假定，我需要在home获取最近一次的火箭发射情况。
 
+```ts
+//HomeDao.js
+import BaseDao from './BaseDao';
 
+class Home extends BaseDao{
+    constructor(){
+        super()
+    }
+    getLatestLaunch(){
+        return this.request({
+            url:'/launches/latest',
+            method:'GET',
+        })
+    }
+}
 
+export default new Home()
+```
 
+接下来我们就可以在home的页面中调用getLatestLaunch来获取数据了,例如
+
+```js
+    //home/index.js 片段
+	componentDidMount(){
+        HomeDao.getLatestLaunch().then(data => {
+            this.setState({
+                loading: false,
+                data
+            })
+        })
+	}
+
+```
+取到数据后，我们就可以用在render中自由翱翔，渲染页面了。
 
 
 ## 集成Redux
@@ -265,7 +296,7 @@ rn-fetch-blob
 
 ## 第三方组件
 
-经常逛Github的同学应该知道，几乎任何框架都有一个叫做awesome-xxx的仓库，react-native亦然，你可以在awesome-react-native这个仓库中找到许多第三方组件库。下面我列举一些常用的组件库
+经常逛Github的同学应该知道，几乎任何流行的框架都有一个叫做awesome-xxx的仓库，react-native亦然，你可以在awesome-react-native这个仓库中找到许多第三方组件库。下面我列举一些常用的组件库
 
 - 图片类
     
@@ -278,10 +309,6 @@ rn-fetch-blob
 
 
 另外注意，一些第三方组件使用的android sdk版本各不相同，这可能是你苦苦找寻的Android启动不了的环境问题之一。
-
-
-
-
 
 
 

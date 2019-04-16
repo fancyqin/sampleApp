@@ -1,8 +1,6 @@
 import {Alert} from 'react-native'
 import RNFetchBlob from 'rn-fetch-blob'
 const qs = require('qs');
-
-
 const APIVersion = 'v3'
 export default class BaseDao {
     constructor() {
@@ -29,12 +27,13 @@ export default class BaseDao {
                 let timer = setTimeout(() => {
                     Alert('Request Over Time')
                 }, 60000);
-                task.then(result => {
+                task.then(res => {
                     timer && clearTimeout(timer);
-                    if(result && result.error){
-                        reject(result.error);
+                    let json = res.json();
+                    if(json && json.error){
+                        reject(json.error);
                     }else{
-                        resolve(result)
+                        resolve(json)
                     }
                 }).catch(err => {
                     reject(err);
@@ -44,6 +43,4 @@ export default class BaseDao {
             }
         });
     }
-
-
 }
