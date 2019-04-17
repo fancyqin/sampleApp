@@ -1,11 +1,12 @@
-import React, { Component } from 'react';
-import { View, Text,ScrollView, StyleSheet,Image ,ActivityIndicator} from 'react-native';
+import React, { Component,createRef } from 'react';
+import { View, Text,ScrollView, StyleSheet,Image ,ActivityIndicator,TouchableOpacity} from 'react-native';
 import HomeDao from '../../dao/HomeDao'
+import Gallery from '../../component/ImageGallery'
 
 export default class Home extends Component {
 	constructor(props) {
 		super(props);
-		
+		this.gallery = createRef()
 	}
 
 	state={
@@ -33,7 +34,7 @@ export default class Home extends Component {
 				<ScrollView style={styles.mission_wrap}>
 					<Text style={styles.title}>LATEST LAUNCH</Text>
 					<View style={styles.image_wrap}>
-						<Image style={styles.mission_patch} source={{uri:links.mission_patch}} />
+						<Image resizeMode={'contain'} style={styles.mission_patch} source={{uri:links.mission_patch}} />
 					</View>
 					<View style={styles.item_wrap}>
 						<View style={styles.item}>
@@ -57,11 +58,15 @@ export default class Home extends Component {
 					<Text style={styles.detail_title}>PHOTOS</Text>
 					<ScrollView style={styles.flickr_wrap} horizontal={true} >
 						{links.flickr_images.map((item,i)=>{
-							return <Image key={i+''} style={styles.flickr_img} source={{uri:item}} />
+							return <TouchableOpacity onPress={()=> this.gallery.current.openGallery(i)}>
+								<Image resizeMode={'contain'} key={i+''} style={styles.flickr_img} source={{uri:item}} />
+							</TouchableOpacity>
 						})}
 					</ScrollView>
 					<Text style={styles.detail_title}>DETAILS</Text>
 					<Text style={styles.details}>{details}</Text>
+
+					<Gallery ref={this.gallery} imgList={links.flickr_images} current={0} />
 				</ScrollView>
 				
 			}
@@ -82,8 +87,7 @@ const styles = StyleSheet.create({
 	},
 	title:{
 		fontSize: 18,
-		textAlign:'center',
-		paddingVertical: 20,
+		paddingBottom: 15,
 		fontWeight: 'bold',
 	},
 	mission_wrap:{
@@ -134,6 +138,7 @@ const styles = StyleSheet.create({
 		height: 80,
 		marginRight: 10,
 		marginBottom: 10,
+		backgroundColor: '#f5f7fa',
 	}
 	
 })

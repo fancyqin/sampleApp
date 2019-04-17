@@ -1,5 +1,6 @@
 import React from 'react'
-import {createAppContainer,createBottomTabNavigator,createStackNavigator,KeyBoardHiddenTabBar} from 'react-navigation'
+import {Image,Text,View} from 'react-native'
+import {createAppContainer,createBottomTabNavigator,createStackNavigator,KeyBoardHiddenTabBar,SafeAreaView} from 'react-navigation'
 import Ionicons from 'react-native-vector-icons/Ionicons';
 //引入各个页面
 import Home from '../view/home'
@@ -60,7 +61,7 @@ const TabNavigator = createBottomTabNavigator(
 //公共头部样式提出
 const headerStyles = {
     headerStyle: {
-        backgroundColor: '#24292e',
+        backgroundColor: '#0b0b0b',
         height: 44,                                      
         elevation: 0, 
         shadowOpacity: 0, 
@@ -76,14 +77,24 @@ const headerStyles = {
     }
 }
 
+//自定义一个酷炫的页头给Tab用
+const tabHeader = ()=>{
+    return <SafeAreaView style={{backgroundColor:'#0b0b0b'}}>
+        <View style={{alignItems: 'center',height:44}}>
+        <Image style={{width:135,height:18,marginLeft:10,marginTop:10}} resizeMode={'contain'} source={require('../res/img/spacex_logo_white.png')} />
+        </View>
+    </SafeAreaView>
+}
+
+
+
 //创建一个Stack导航，其中Tab路由的screen即是Tab导航
 const AppNavigator = createStackNavigator({
     Tab:{
         screen:TabNavigator,
         //导航选项
         navigationOptions: {
-            headerTitle:'SPACE X',
-            ...headerStyles
+            header:tabHeader
         }
     },
     Detail:{
@@ -91,7 +102,6 @@ const AppNavigator = createStackNavigator({
         //导航选项
         navigationOptions: ({navigation}) => {
             return {
-                headerTitle:'Rocket Detail',
                 headerLeft: <Ionicons onPress={()=> navigation.goBack()} style={{marginLeft:15}} name='ios-arrow-back' color="#fff" size={28} />,
                 ...headerStyles
             }
