@@ -31,42 +31,44 @@ export default class Home extends Component {
 				{loading ? <View style={styles.loadingWrap}>
 					<ActivityIndicator />
 				</View>:
-				<ScrollView style={styles.mission_wrap}>
-					<Text style={styles.title}>LATEST LAUNCH</Text>
-					<View style={styles.image_wrap}>
-						<Image resizeMode={'contain'} style={styles.mission_patch} source={{uri:links.mission_patch}} />
-					</View>
-					<View style={styles.item_wrap}>
-						<View style={styles.item}>
-							<Text style={styles.label}>MISSION:</Text>
-							<Text style={styles.text}>{mission_name}</Text>
+				<ScrollView>
+					<View style={styles.mission_wrap}>
+						<Text style={styles.title}>LATEST LAUNCH</Text>
+						<View style={styles.image_wrap}>
+							<Image resizeMode={'contain'} style={styles.mission_patch} source={{uri:links.mission_patch}} />
 						</View>
-						<View style={styles.item}>
-							<Text style={styles.label}>ROCKET:</Text>
-							<Text style={styles.text}>{rocket.rocket_name}({rocket.rocket_type})</Text>
-						</View>
-						<View style={styles.item}>
-							<Text style={styles.label}>LAUNCH DATE:</Text>
-							<Text style={styles.text}>{launch_date_local}</Text>
-						</View>
-						<View style={styles.item}>
-							<Text style={styles.label}>LAUNCH SITE:</Text>
-							<Text style={styles.text}>{launch_site.site_name_long}</Text>
-						</View>
+						<View style={styles.item_wrap}>
+							<View style={styles.item}>
+								<Text style={styles.label}>MISSION:</Text>
+								<Text style={styles.text}>{mission_name}</Text>
+							</View>
+							<View style={styles.item}>
+								<Text style={styles.label}>ROCKET:</Text>
+								<Text style={styles.text}>{rocket.rocket_name}({rocket.rocket_type})</Text>
+							</View>
+							<View style={styles.item}>
+								<Text style={styles.label}>LAUNCH DATE:</Text>
+								<Text style={styles.text}>{launch_date_local}</Text>
+							</View>
+							<View style={styles.item}>
+								<Text style={styles.label}>LAUNCH SITE:</Text>
+								<Text style={styles.text}>{launch_site.site_name_long}</Text>
+							</View>
 
-					</View>
-					<Text style={styles.detail_title}>PHOTOS</Text>
-					<ScrollView style={styles.flickr_wrap} horizontal={true} >
-						{links.flickr_images.map((item,i)=>{
-							return <TouchableOpacity onPress={()=> this.gallery.current.openGallery(i)}>
-								<Image resizeMode={'contain'} key={i+''} style={styles.flickr_img} source={{uri:item}} />
-							</TouchableOpacity>
-						})}
-					</ScrollView>
-					<Text style={styles.detail_title}>DETAILS</Text>
-					<Text style={styles.details}>{details}</Text>
+						</View>
+						<Text style={styles.detail_title}>PHOTOS</Text>
+						<ScrollView style={styles.flickr_wrap} horizontal={true} >
+							{links.flickr_images.map((item,i)=>{
+								return <TouchableOpacity onPress={()=> this.gallery.current.openGallery(i)}>
+									<Image resizeMode={'contain'} key={i+''} style={styles.flickr_img} source={{uri:item}} />
+								</TouchableOpacity>
+							})}
+						</ScrollView>
+						<Text style={styles.detail_title}>DETAILS</Text>
+						<Text style={styles.details}>{details}</Text>
 
-					<Gallery ref={this.gallery} imgList={links.flickr_images} current={0} />
+						<Gallery ref={this.gallery} imgList={links.flickr_images} current={0} />
+					</View>
 				</ScrollView>
 				
 			}
@@ -91,10 +93,12 @@ const styles = StyleSheet.create({
 		fontWeight: 'bold',
 	},
 	mission_wrap:{
+		flex:1,
 		padding:15,
 	},	
 	image_wrap:{
-		alignItems: 'center'
+		alignItems: 'center',
+		
 	},
 	mission_patch:{
 		width: 200,

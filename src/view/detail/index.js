@@ -38,61 +38,62 @@ export default class Detail extends Component {
 				{loading ? <View style={styles.loadingWrap}>
 					<ActivityIndicator />
 				</View>:
-				<ScrollView style={styles.mission_wrap}>
-					<View style={styles.image_wrap}>
-						<Image resizeMode={'contain'} style={styles.mission_patch} source={{uri:flickr_images[0]}} />
+				<ScrollView>
+					<View style={styles.mission_wrap}>
+						<View style={styles.image_wrap}>
+							<Image resizeMode={'contain'} style={styles.mission_patch} source={{uri:flickr_images[0]}} />
+						</View>
+						<View style={styles.item_wrap}>
+							<View style={styles.item}>
+								<Text style={styles.label}>NAME:</Text>
+								<Text style={styles.text}>{rocket_name}</Text>
+							</View>
+							<View style={styles.item}>
+								<Text style={styles.label}>FIRST FLIGHT:</Text>
+								<Text style={styles.text}>{first_flight}</Text>
+							</View>
+							<View style={styles.item}>
+								<Text style={styles.label}>COST:</Text>
+								<Text style={styles.text}>{cost_per_launch}</Text>
+							</View>
+							<View style={styles.item}>
+								<Text style={styles.label}>MASS:</Text>
+								<Text style={styles.text}>{mass.kg} kg</Text>
+							</View>
+							<View style={styles.item}>
+								<Text style={styles.label}>ENGINES:</Text>
+								<Text style={styles.text}>{engines.type+'('+engines.version+') x'+engines.number}</Text>
+							</View>
+
+							<View style={styles.item}>
+								<Text style={styles.label}>COUNTRY:</Text>
+								<Text style={styles.text}>{country}</Text>
+							</View>
+							<View style={styles.item}>
+								<Text style={styles.label}>COMPANY:</Text>
+								<Text style={styles.text}>{company}</Text>
+							</View>
+							<View style={styles.item}>
+								<Text style={styles.label}>HEGIHT:</Text>
+								<Text style={styles.text}>{height.meters} meters</Text>
+							</View>
+							<View style={styles.item}>
+								<Text style={styles.label}>DIAMETER:</Text>
+								<Text style={styles.text}>{diameter.meters} meters</Text>
+							</View>
+
+						</View>
+						<Text style={styles.detail_title}>PHOTOS</Text>
+						<ScrollView style={styles.flickr_wrap} horizontal={true} >
+							{flickr_images.map((item,i)=>{
+								return <TouchableOpacity onPress={()=> this.gallery.current.openGallery(i)}>
+									<Image resizeMode={'contain'} key={i+''} style={styles.flickr_img} source={{uri:item}} />
+								</TouchableOpacity>
+							})}
+						</ScrollView>
+						<Text style={styles.detail_title}>DESCRIPTION</Text>
+						<Text style={styles.details}>{description}</Text>
 					</View>
-					<View style={styles.item_wrap}>
-						<View style={styles.item}>
-							<Text style={styles.label}>NAME:</Text>
-							<Text style={styles.text}>{rocket_name}</Text>
-						</View>
-						<View style={styles.item}>
-							<Text style={styles.label}>FIRST FLIGHT:</Text>
-							<Text style={styles.text}>{first_flight}</Text>
-						</View>
-						<View style={styles.item}>
-							<Text style={styles.label}>COST:</Text>
-							<Text style={styles.text}>{cost_per_launch}</Text>
-						</View>
-						<View style={styles.item}>
-							<Text style={styles.label}>MASS:</Text>
-							<Text style={styles.text}>{mass.kg} kg</Text>
-						</View>
-						<View style={styles.item}>
-							<Text style={styles.label}>ENGINES:</Text>
-							<Text style={styles.text}>{engines.type+'('+engines.version+') x'+engines.number}</Text>
-						</View>
-
-						<View style={styles.item}>
-							<Text style={styles.label}>COUNTRY:</Text>
-							<Text style={styles.text}>{country}</Text>
-						</View>
-						<View style={styles.item}>
-							<Text style={styles.label}>COMPANY:</Text>
-							<Text style={styles.text}>{company}</Text>
-						</View>
-						<View style={styles.item}>
-							<Text style={styles.label}>HEGIHT:</Text>
-							<Text style={styles.text}>{height.meters} meters</Text>
-						</View>
-						<View style={styles.item}>
-							<Text style={styles.label}>DIAMETER:</Text>
-							<Text style={styles.text}>{diameter.meters} meters</Text>
-						</View>
-
-					</View>
-					<Text style={styles.detail_title}>PHOTOS</Text>
-					<ScrollView style={styles.flickr_wrap} horizontal={true} >
-						{flickr_images.map((item,i)=>{
-							return <TouchableOpacity onPress={()=> this.gallery.current.openGallery(i)}>
-								<Image resizeMode={'contain'} key={i+''} style={styles.flickr_img} source={{uri:item}} />
-							</TouchableOpacity>
-						})}
-					</ScrollView>
-					<Text style={styles.detail_title}>DESCRIPTION</Text>
-					<Text style={styles.details}>{description}</Text>
-
 					<Gallery ref={this.gallery} imgList={flickr_images} current={0} />
 				</ScrollView>
 				
@@ -123,7 +124,7 @@ const styles = StyleSheet.create({
 		alignItems: 'center'
 	},
 	mission_patch:{
-		width: 200,
+		width: 300,
 		height:200,
 	},
 	item_wrap:{
