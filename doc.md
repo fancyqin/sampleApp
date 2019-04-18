@@ -400,7 +400,7 @@ render() {
 - `react-native-splash-screen` App启动图设置
 - `react-native-storage` 本地持久化
 - `react-native-linear-gradient` 渐变色组件
-- `lottie-react-native bodymovin` 导入的动画解决方案
+- `lottie-react-native` `bodymovin`导入的动画解决方案
 - `react-native-pdf` PDF文件预览
 - `react-native-share` 分享组件
 - `react-native-device-info` 设备信息获取
