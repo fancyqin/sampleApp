@@ -5,6 +5,8 @@
 
 > 注意，笔者示例使用的RN版本为最新（0.59.4）
 
+如图，我们目标是一个使用spaceX的API开发的只有三个页面的App样例。
+![spaceXApp](screenshot.jpg)
 
 ## 目录结构
 
