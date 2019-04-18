@@ -386,7 +386,7 @@ render() {
 
 ## 集成Redux
 
-
+todo
 
 
 
@@ -417,8 +417,7 @@ render() {
 - `react-native-keyboard-aware-scroll-view` 含scroll等组件键盘弹出时候遮挡输入框问题修复
     
 
-> 注意，有一些需要原生代码支持的第三方组件，需要link命令，但是Android在link命令时候，往往会出错，这就需要我们手动修改
-
+> 注意，有一些需要原生代码支持的第三方组件，需要link原生依赖，但是Android在link命令时候，有可能会出错，这就需要我们修改`MainApplication.java`、`settings.gradle`、`build.gradle`等文件手动link。
 
 > 另外注意，一些第三方组件使用的android sdk版本各不相同，这可能是你苦苦找寻的Android启动不了的环境问题之一。
 
