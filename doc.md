@@ -3,10 +3,11 @@
 
 很多小伙伴对React Native（以下简称RN）的了解估计都只停留在 react-native init sampleApp 步骤，环境搭好了，却不知道怎么开始下一步。笔者这篇文章就是告诉大家Hello World之后的故事。
 
-> 注意，笔者示例使用的RN版本为最新（0.59.4）
+> 注意，示例使用的RN版本为最新（0.59.4）
 
 如图，我们目标是一个使用spaceX的API开发的只有三个页面的App样例。
 ![spaceXApp](screenshot.jpg)
+
 
 ## 目录结构
 
@@ -48,9 +49,11 @@ export default class Home extends Component {
 
 接下来我们配置路由，目前来说`react-navigation`是RN官方推荐也是比较流行的一个方案。
 
-> 注意，笔者目前使用的是3.x的版本，与2.x有一些差别，需要另外安装`react-native-gesture-handler` 并link其原生依赖。具体可以看[文档](https://reactnavigation.org/docs/zh-Hans/getting-started.html#%E5%AE%89%E8%A3%85)
+RN并不像Web浏览器那样有内置全局的历史堆栈，`Stack navigator`，顾名思义，就是为了解决这个而出现的。同时`react-navigation`还内置了App中最常用的`Tab navigator`和`Drawer navigation`,Tab导航和抽屉导航。
 
-安装之后，我们在router文件夹下新建index.js作为的我们的路由文件
+比如，我们要开发的SpaceX App就用到了`Stack navigator`和`Tab navigator`
+
+我们在router文件夹下新建index.js作为的我们的路由文件
 
 ```ts
 import React from 'react'
@@ -189,7 +192,7 @@ export default class App extends Component{
     }
 }
 ```
-这样以来我们就做好了一个简单的路由系统。路由中的页面的`props`会有`navigation`对象，我们可以通过它进行页面跳转，参数传递等等。
+这样一来我们就做好了一个简单的路由系统。路由中的页面的`props`会有`navigation`对象，我们可以通过它进行页面跳转，参数传递等等。
 
 例如，在view中list页面，给`Text`添加`onPress`属性。
 
@@ -198,6 +201,8 @@ export default class App extends Component{
 ```
 
 Reload一下，你就能看到一个简单的架子了，点击Tab的图标进行Tab跳转，点击List页面中 Go To Detail 可以跳转到Detail页面。
+
+> 注意，笔者目前使用的是3.x的版本，与2.x有一些差别，需要另外安装`react-native-gesture-handler` 并link其原生依赖。具体可以看[文档](https://reactnavigation.org/docs/zh-Hans/getting-started.html#%E5%AE%89%E8%A3%85)
 
 
 ## 接口数据层处理
