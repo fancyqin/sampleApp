@@ -42,7 +42,6 @@ export default class List extends Component {
 		</TouchableHighlight>
 	}
 
-
 	render() {
 		let {loading,list} = this.state;
 		return (
@@ -58,10 +57,7 @@ export default class List extends Component {
 						keyExtractor={item=> item.rocket_id}
 					/>
 				</Fragment>
-				
-				
 			}
-				
 			</View>
 		);
 	}

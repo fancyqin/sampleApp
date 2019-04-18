@@ -86,8 +86,6 @@ const tabHeader = ()=>{
     </SafeAreaView>
 }
 
-
-
 //创建一个Stack导航，其中Tab路由的screen即是Tab导航
 const AppNavigator = createStackNavigator({
     Tab:{

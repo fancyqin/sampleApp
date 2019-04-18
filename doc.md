@@ -23,9 +23,11 @@ Hello World 之后，我首先创建如下目录
       list
 ```
 
-如图我们创建目录之后，我们创建home、list、detail几个页面。
+如图我们创建目录之后，我们创建home、list、detail三个页面。
 
-然后我们可以先让每个页面返回一个简单的`Text`组成的`Component`，例如home
+比如说，我们用home来显示最近一次火箭的发射情况，list显示现有的火箭列表，detail为火箭详情页。
+
+我们可以先让每个页面返回一个简单的`Text`组成的`Component`，例如home
 
 ```js
 import React, { Component } from 'react';
@@ -46,13 +48,14 @@ export default class Home extends Component {
 
 接下来我们配置路由，目前来说`react-navigation`是RN官方推荐也是比较流行的一个方案。
 
-> 注意，笔者目前使用的是3.x的版本，与2.x有一些差别，需要另外安装react-native-gesture-handler 并link其原生依赖。具体可以看[文档](https://reactnavigation.org/docs/zh-Hans/getting-started.html#%E5%AE%89%E8%A3%85)
+> 注意，笔者目前使用的是3.x的版本，与2.x有一些差别，需要另外安装`react-native-gesture-handler` 并link其原生依赖。具体可以看[文档](https://reactnavigation.org/docs/zh-Hans/getting-started.html#%E5%AE%89%E8%A3%85)
 
 安装之后，我们在router文件夹下新建index.js作为的我们的路由文件
 
 ```ts
 import React from 'react'
-import {createAppContainer,createBottomTabNavigator,createStackNavigator,KeyBoardHiddenTabBar} from 'react-navigation'
+import {Image,Text,View} from 'react-native'
+import {createAppContainer,createBottomTabNavigator,createStackNavigator,KeyBoardHiddenTabBar,SafeAreaView} from 'react-navigation'
 import Ionicons from 'react-native-vector-icons/Ionicons';
 //引入各个页面
 import Home from '../view/home'
@@ -113,7 +116,7 @@ const TabNavigator = createBottomTabNavigator(
 //公共头部样式提出
 const headerStyles = {
     headerStyle: {
-        backgroundColor: '#24292e',
+        backgroundColor: '#0b0b0b',
         height: 44,                                      
         elevation: 0, 
         shadowOpacity: 0, 
@@ -129,14 +132,22 @@ const headerStyles = {
     }
 }
 
+//自定义一个酷炫的页头给Tab用
+const tabHeader = ()=>{
+    return <SafeAreaView style={{backgroundColor:'#0b0b0b'}}>
+        <View style={{alignItems: 'center',height:44}}>
+        <Image style={{width:135,height:18,marginLeft:10,marginTop:10}} resizeMode={'contain'} source={require('../res/img/spacex_logo_white.png')} />
+        </View>
+    </SafeAreaView>
+}
+
 //创建一个Stack导航，其中Tab路由的screen即是Tab导航
 const AppNavigator = createStackNavigator({
     Tab:{
         screen:TabNavigator,
         //导航选项
         navigationOptions: {
-            headerTitle:'SPACE X',
-            ...headerStyles
+            header:tabHeader
         }
     },
     Detail:{
@@ -144,7 +155,6 @@ const AppNavigator = createStackNavigator({
         //导航选项
         navigationOptions: ({navigation}) => {
             return {
-                headerTitle:'Rocket Detail',
                 headerLeft: <Ionicons onPress={()=> navigation.goBack()} style={{marginLeft:15}} name='ios-arrow-back' color="#fff" size={28} />,
                 ...headerStyles
             }
@@ -179,9 +189,9 @@ export default class App extends Component{
     }
 }
 ```
-这样以来我们就做好了一个简单的路由系统。路由中的页面的props会有navigation对象，我们可以通过它进行页面跳转，参数传递等等。
+这样以来我们就做好了一个简单的路由系统。路由中的页面的`props`会有`navigation`对象，我们可以通过它进行页面跳转，参数传递等等。
 
-例如，在view中list页面，给Text添加onPress属性。
+例如，在view中list页面，给`Text`添加`onPress`属性。
 
 ```js
     <Text onPress={()=>this.props.navigation.navigate('Detail')}> Go To Detail </Text>
@@ -192,11 +202,9 @@ Reload一下，你就能看到一个简单的架子了，点击Tab的图标进�
 
 ## 接口数据层处理
 
-我们知道RN用的fetch来处理网络请求。
+目录中，dao目录主要是用于存放我们数据处理文件。
 
-dao目录主要是用于我们数据处理
-
-我们可以在dao文件夹封装一层叫做BaseDao的父类，对请求的参数、url、headers、错误处理、超时处理等做一些统一的处理。
+我们可以在dao中封装一层叫做BaseDao的父类，方便我们对请求的参数、url、headers、错误处理、超时处理等做一些统一的处理。
 
 ```ts
 //BaseDao.js
@@ -214,12 +222,10 @@ export default class BaseDao {
             let { url, method, headers, params, data, enctype } = requestArgs;
             //url
             url = this.baseURL + APIVersion + url;
-            
             if (params) {
                 //序列化query参数
                 url = url + '?' + qs.stringify(params, { arrayFormat: 'repeat' });
             }
-
             try {
                 let task = RNFetchBlob.fetch(method, url, {
                     //headers 处理
@@ -249,9 +255,9 @@ export default class BaseDao {
 }
 ```
 
-> 上述代码我用到了rn-fetch-blob这个库，它不仅可以处理一些接口请求，还有文件系统，可以处理文件上传，文件的本地存储等等。
+> 上述代码我用到了`rn-fetch-blob`这个库，它不仅可以处理一些接口请求，还有文件系统，可以处理文件上传，文件的本地存储等等。
 
-例如，针对home页面，我们可以新建HomeDao继承自BaseDao。假定，我需要在home获取最近一次的火箭发射情况。
+例如，针对home页面，我们可以新建HomeDao继承自BaseDao。假定，我们需要在home获取最近一次的火箭发射情况。
 
 ```ts
 //HomeDao.js
@@ -272,22 +278,106 @@ class Home extends BaseDao{
 export default new Home()
 ```
 
-接下来我们就可以在home的页面中调用getLatestLaunch来获取数据了,例如
+接下来我们就可以在home的页面中调用`getLatestLaunch`来获取数据了,例如
 
 ```js
-    //home/index.js 片段
-	componentDidMount(){
-        HomeDao.getLatestLaunch().then(data => {
-            this.setState({
-                loading: false,
-                data
-            })
+//home/index.js 片段
+componentDidMount(){
+    HomeDao.getLatestLaunch().then(data => {
+        this.setState({
+            loading: false,
+            data
         })
-	}
+    })
+}
 
 ```
-取到数据后，我们就可以用在render中自由翱翔，渲染页面了。
 
+## 渲染页面
+
+取到数据后，我们就可以用在`render`中自由翱翔，渲染页面了。
+
+```js
+//home/index.js 片段
+render() {
+    let {loading,data} = this.state;
+    let {mission_name,links,details,launch_date_local,launch_site,rocket} = data;
+    return (
+        <View style={styles.wrap}>
+            {loading ? 
+            <View style={styles.loadingWrap}>
+                <ActivityIndicator />
+            </View>
+            :
+            <ScrollView>
+                <View style={styles.mission_wrap}>
+                    <Text style={styles.title}>LATEST LAUNCH</Text>
+                    <View style={styles.image_wrap}>
+                        <Image resizeMode={'contain'} style={styles.mission_patch} source={{uri:links.mission_patch}} />
+                    </View>
+                    <View style={styles.item_wrap}>
+                        <View style={styles.item}>
+                            <Text style={styles.label}>MISSION:</Text>
+                            <Text style={styles.text}>{mission_name}</Text>
+                        </View>
+                    </View>
+                    <Text style={styles.detail_title}>PHOTOS</Text>
+                    <ScrollView style={styles.flickr_wrap} horizontal={true} >
+                        {links.flickr_images.map((item,i)=>{
+                            return <Image resizeMode={'contain'} key={i+''} style={styles.flickr_img} source={{uri:item}} />
+                        })}
+                    </ScrollView>
+                    <Text style={styles.detail_title}>DETAILS</Text>
+                    <Text style={styles.details}>{details}</Text>
+                </View>
+            </ScrollView>
+        }
+        </View>
+    );
+}
+
+```
+
+同理我们，可以新建ListDao用来存放list页面中数据请求，然后在list页面中渲染数据
+
+```js
+//home/list.js 片段
+_renderItem({item,index}){
+    const hasImg = item.flickr_images && item.flickr_images.length > 0
+    return <TouchableHighlight activeOpacity={1} underlayColor='#dae0e5' onPress={()=> this.props.navigation.navigate('Detail',{id:item.rocket_id,name:item.rocket_name})} style={styles.rocket_item}>
+        <Fragment>
+            {hasImg && <Image style={styles.item_img} source={{uri:item.flickr_images[0]}} resizeMode={'contain'} />}
+            <View style={styles.item_info}>
+                <Text style={styles.item_name}>{item.rocket_name}</Text>
+            </View>
+        </Fragment>
+    </TouchableHighlight>
+}
+
+render() {
+    let {loading,list} = this.state;
+    return (
+        <View style={styles.wrap}>
+            {loading ? <View style={styles.loadingWrap}>
+                <ActivityIndicator />
+            </View>:
+            <Fragment>
+                <Text style={styles.title}>ROCKETS LIST</Text>
+                <FlatList 
+                    data={list}
+                    renderItem={this._renderItem}
+                    keyExtractor={item=> item.rocket_id}
+                />
+            </Fragment>
+        }
+        </View>
+    );
+}
+
+```
+上述列表使用了RN中最常见的列表组件`FlatList`，关于`FlatList`，可讲的还有很多，小到下拉刷新、上拉加载，大到长列表内存回收等性能问题，本文暂不深入探讨。
+
+[其他源码](https://github.com/fancyqin/sampleApp)
 
 ## 集成Redux
 
@@ -298,29 +388,37 @@ export default new Home()
 
 ## 第三方组件
 
-经常逛Github的同学应该知道，几乎任何流行的框架都有一个叫做awesome-xxx的仓库，react-native亦然，你可以在awesome-react-native这个仓库中找到许多第三方组件库。下面我列举一些常用的组件库
+经常逛Github的同学应该知道，几乎任何流行的框架都有一个叫做awesome-xxx的仓库，react-native亦然，你可以在awesome-react-native这个仓库中找到许多第三方组件库。下面列举一些我常用的组件库
 
-- 图片类
+#### 基础类
+- `react-navigation` 路由导航
+- `react-native-splash-screen` App启动图设置
+- `react-native-storage` 本地持久化
+- `react-native-linear-gradient` 渐变色组件
+- `lottie-react-native bodymovin` 导入的动画解决方案
+- `react-native-pdf` PDF文件预览
+- `react-native-share` 分享组件
+- `react-native-device-info` 设备信息获取
+- `rn-fetch-blob` 请求处理
+- `react-native-vector-icons` 字体图标
+
+#### 图片处理类
+- `react-native-swiper` 轮播组件
+- `react-native-image-cache-hoc` 图片缓存
+- `react-native-image-gallery` 放大图
+- `react-native-image-picker` 选择相册、图片上传
+
+#### 修复类
+- `react-native-keyboard-aware-scroll-view` 含scroll等组件键盘弹出时候遮挡输入框问题修复
     
-    react
-- 本地storage持久化
+
+> 注意，有一些需要原生代码支持的第三方组件，需要link命令，但是Android在link命令时候，往往会出错，这就需要我们手动修改
 
 
-注意，有一些需要原生代码支持的第三方组件，需要link命令，但是Android在link命令时候，往往会出错，这就需要我们手动修改
+> 另外注意，一些第三方组件使用的android sdk版本各不相同，这可能是你苦苦找寻的Android启动不了的环境问题之一。
 
 
+## OVER
 
-另外注意，一些第三方组件使用的android sdk版本各不相同，这可能是你苦苦找寻的Android启动不了的环境问题之一。
-
-
-
-## 环境问题
-
-ReactNative的环境问题让许多新接触RN的开发者望而却步，
-
-
-
-## 版本选择
-
-RN自2015年开源以来还没有到1.0版本。0.55.4
+以上是比较浅显的讲述了在RN hello world之后的一些文件布局、全局路由搭建等操作。希望能给刚刚接触RN的你一点参考。
 
