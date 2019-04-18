@@ -56,14 +56,7 @@ RN并不像Web浏览器那样有内置全局的历史堆栈，`Stack navigator`�
 我们在router文件夹下新建index.js作为的我们的路由文件
 
 ```ts
-import React from 'react'
-import {Image,Text,View} from 'react-native'
-import {createAppContainer,createBottomTabNavigator,createStackNavigator,KeyBoardHiddenTabBar,SafeAreaView} from 'react-navigation'
-import Ionicons from 'react-native-vector-icons/Ionicons';
-//引入各个页面
-import Home from '../view/home'
-import List from '../view/list'
-import Detail from '../view/detail'
+//router/index.js部分代码
 
 //创建一个Tab导航
 const TabNavigator = createBottomTabNavigator(
@@ -71,126 +64,41 @@ const TabNavigator = createBottomTabNavigator(
 {
     Home: {
         //screen为Component或者Navigator
-        screen: Home,
-        //导航选项
-        navigationOptions: {
-            tabBarLabel: 'Launch',
-        },
+        screen: Home
     },
     List: {
-        screen: List,
-        navigationOptions: {
-            tabBarLabel: 'Rockets',
-        },
+        screen: List
     }
 }, 
 //第二个参数为导航的一些基本配置对象StackNavigatorConfig
 {
-    defaultNavigationOptions: ({ navigation }) => ({
-        //自定义tabBar的icon
-        tabBarIcon: ({ focused, horizontal, tintColor }) => {
-            const { routeName } = navigation.state;
-            let iconName;
-            if (routeName === 'Home') {
-                iconName = 'md-planet';
-            } else if (routeName === 'List') {
-                iconName = `md-rocket`;
-            }
-            return <Ionicons name={iconName} size={25} color={tintColor} />
-        },
-    }),
-    animationEnabled: false,
-    swipeEnabled: false,
-    //tabBar的options样式
-    tabBarOptions: {
-        activeTintColor: '#24292e',
-        inactiveTintColor: '#888',
-        labelStyle: {
-            fontSize: 12,
-        },
-        style: {
-            backgroundColor: 'white'
-        },
-        allowFontScaling: false
-    },
-    //默认初始路由
-    initialRouteName: 'Home'
+    //your navigator config
 })
-//公共头部样式提出
-const headerStyles = {
-    headerStyle: {
-        backgroundColor: '#0b0b0b',
-        height: 44,                                      
-        elevation: 0, 
-        shadowOpacity: 0, 
-        borderBottomWidth: 0
-    },
-    headerTitleStyle: {
-        fontWeight: 'normal',
-        color: '#fff',
-        fontSize: 19,
-        alignSelf: 'center',
-        textAlign: 'center',
-        flexGrow: 1
-    }
-}
-
-//自定义一个酷炫的页头给Tab用
-const tabHeader = ()=>{
-    return <SafeAreaView style={{backgroundColor:'#0b0b0b'}}>
-        <View style={{alignItems: 'center',height:44}}>
-        <Image style={{width:135,height:18,marginLeft:10,marginTop:10}} resizeMode={'contain'} source={require('../res/img/spacex_logo_white.png')} />
-        </View>
-    </SafeAreaView>
-}
 
 //创建一个Stack导航，其中Tab路由的screen即是Tab导航
 const AppNavigator = createStackNavigator({
     Tab:{
-        screen:TabNavigator,
-        //导航选项
-        navigationOptions: {
-            header:tabHeader
-        }
+        screen:TabNavigator
     },
     Detail:{
-        screen: Detail,
-        //导航选项
-        navigationOptions: ({navigation}) => {
-            return {
-                headerLeft: <Ionicons onPress={()=> navigation.goBack()} style={{marginLeft:15}} name='ios-arrow-back' color="#fff" size={28} />,
-                ...headerStyles
-            }
-        }
+        screen: Detail
     }
 },{
     initialRouteName: 'Tab'
 })
-//使用createAppContainer返回Component给入口App.js使用
+//最后使用createAppContainer返回Component给入口App.js使用
 export default createAppContainer(AppNavigator);
 
 ```
 
-> 上面文件使用了react-native-vector-icons字体图标库组件，该组件在安装后除了link大法之后还需要其他操作，比如ios需要拖动库中的Fonts文件夹到Xcode目录中并修改Info.plist文件。具体出门右转[文档](https://github.com/oblador/react-native-vector-icons#installation)
-
-
-然后修改入口App.js
+然后修改入口App.js，使其`render`返回 路由组件
 
 ```js
-import React, {Component} from 'react';
-import {StatusBar} from 'react-native';
-import AppContainer from './src/router'
 
-export default class App extends Component{
-    constructor(){
-        super()
-        //因为页头设置是深色，所以设置了StatusBar为白色字体
-        StatusBar.setBarStyle('light-content');
-    }
-    render() {
-        return <AppContainer />
-    }
+render() {
+    return <AppContainer />
 }
+
 ```
 这样一来我们就做好了一个简单的路由系统。路由中的页面的`props`会有`navigation`对象，我们可以通过它进行页面跳转，参数传递等等。
 
@@ -213,48 +121,18 @@ Reload一下，你就能看到一个简单的架子了，点击Tab的图标进�
 
 ```ts
 //BaseDao.js
-import {Alert} from 'react-native'
-import RNFetchBlob from 'rn-fetch-blob'
-const qs = require('qs');
-
-const APIVersion = 'v3'
-export default class BaseDao {
+class BaseDao {
     constructor() {
-        this.baseURL = 'https://api.spacexdata.com/';
+
     }
     request(requestArgs) {
         return new Promise(async (resolve, reject) => {
-            let { url, method, headers, params, data, enctype } = requestArgs;
-            //url
-            url = this.baseURL + APIVersion + url;
-            if (params) {
-                //序列化query参数
-                url = url + '?' + qs.stringify(params, { arrayFormat: 'repeat' });
-            }
-            try {
-                let task = RNFetchBlob.fetch(method, url, {
-                    //headers 处理
-                    ...headers,
-                    'Content-Type': method === 'POST' ? (enctype ? enctype : 'multipart/form-data') :'application/json'
-                },data);
-                //超时统一处理
-                let timer = setTimeout(() => {
-                    Alert('Request Over Time')
-                }, 60000);
-                task.then(res => {
-                    timer && clearTimeout(timer);
-                    let json = res.json();
-                    if(json && json.error){
-                        reject(json.error);
-                    }else{
-                        resolve(json)
-                    }
-                }).catch(err => {
-                    reject(err);
-                });
-            } catch(err) {
+            let task = RNFetchBlob.fetch(method, url, {...headers},data);
+            task.then(res => {
+                //do something
+            }).catch(err => {
                 reject(err);
-            }
+            });
         });
     }
 }
@@ -266,8 +144,6 @@ export default class BaseDao {
 
 ```ts
 //HomeDao.js
-import BaseDao from './BaseDao';
-
 class Home extends BaseDao{
     constructor(){
         super()
@@ -279,8 +155,6 @@ class Home extends BaseDao{
         })
     }
 }
-
-export default new Home()
 ```
 
 接下来我们就可以在home的页面中调用`getLatestLaunch`来获取数据了,例如
@@ -305,8 +179,7 @@ componentDidMount(){
 ```js
 //home/index.js 片段
 render() {
-    let {loading,data} = this.state;
-    let {mission_name,links,details,launch_date_local,launch_site,rocket} = data;
+    let {loading} = this.state;
     return (
         <View style={styles.wrap}>
             {loading ? 
@@ -315,26 +188,7 @@ render() {
             </View>
             :
             <ScrollView>
-                <View style={styles.mission_wrap}>
-                    <Text style={styles.title}>LATEST LAUNCH</Text>
-                    <View style={styles.image_wrap}>
-                        <Image resizeMode={'contain'} style={styles.mission_patch} source={{uri:links.mission_patch}} />
-                    </View>
-                    <View style={styles.item_wrap}>
-                        <View style={styles.item}>
-                            <Text style={styles.label}>MISSION:</Text>
-                            <Text style={styles.text}>{mission_name}</Text>
-                        </View>
-                    </View>
-                    <Text style={styles.detail_title}>PHOTOS</Text>
-                    <ScrollView style={styles.flickr_wrap} horizontal={true} >
-                        {links.flickr_images.map((item,i)=>{
-                            return <Image resizeMode={'contain'} key={i+''} style={styles.flickr_img} source={{uri:item}} />
-                        })}
-                    </ScrollView>
-                    <Text style={styles.detail_title}>DETAILS</Text>
-                    <Text style={styles.details}>{details}</Text>
-                </View>
+                {/* home inner */}
             </ScrollView>
         }
         </View>
@@ -348,17 +202,10 @@ render() {
 ```js
 //home/list.js 片段
 _renderItem({item,index}){
-    const hasImg = item.flickr_images && item.flickr_images.length > 0
-    return <TouchableHighlight activeOpacity={1} underlayColor='#dae0e5' onPress={()=> this.props.navigation.navigate('Detail',{id:item.rocket_id,name:item.rocket_name})} style={styles.rocket_item}>
-        <Fragment>
-            {hasImg && <Image style={styles.item_img} source={{uri:item.flickr_images[0]}} resizeMode={'contain'} />}
-            <View style={styles.item_info}>
-                <Text style={styles.item_name}>{item.rocket_name}</Text>
-            </View>
-        </Fragment>
+    return <TouchableHighlight onPress={()=> this.props.navigation.navigate('Detail',{id:item.rocket_id,name:item.rocket_name})}>
+        {/* item inner */}
     </TouchableHighlight>
 }
-
 render() {
     let {loading,list} = this.state;
     return (
@@ -366,14 +213,11 @@ render() {
             {loading ? <View style={styles.loadingWrap}>
                 <ActivityIndicator />
             </View>:
-            <Fragment>
-                <Text style={styles.title}>ROCKETS LIST</Text>
-                <FlatList 
-                    data={list}
-                    renderItem={this._renderItem}
-                    keyExtractor={item=> item.rocket_id}
-                />
-            </Fragment>
+            <FlatList 
+                data={list}
+                renderItem={this._renderItem}
+                keyExtractor={item=> item.rocket_id}
+            />
         }
         </View>
     );
