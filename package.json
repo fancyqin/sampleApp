@@ -14,6 +14,9 @@
     "react-native-image-gallery": "^2.1.5",
     "react-native-vector-icons": "^6.4.2",
     "react-navigation": "^3.6.1",
+    "react-redux": "^7.0.2",
+    "redux": "^4.0.1",
+    "redux-thunk": "^2.3.0",
     "rn-fetch-blob": "^0.10.15"
   },
   "devDependencies": {

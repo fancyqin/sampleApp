@@ -1,7 +1,8 @@
 import React, {Component} from 'react';
 import {StatusBar} from 'react-native';
 import AppContainer from './src/router'
-
+import {Provider} from 'react-redux'
+import configStore from './src/redux/configStore'
 console.disableYellowBox = true
 
 export default class App extends Component{
@@ -11,6 +12,8 @@ export default class App extends Component{
 		StatusBar.setBarStyle('light-content');
 	}
 	render() {
-		return <AppContainer />
+		return <Provider store={configStore()}>
+			<AppContainer />
+		</Provider>
 	}
 }

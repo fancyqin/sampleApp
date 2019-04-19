@@ -5,8 +5,16 @@
 
 > 注意，示例使用的RN版本为最新（0.59.4）
 
-如图，我们目标是一个使用spaceX的API开发的只有三个页面的App样例。
+如图，我们目标是一个使用[SpaceX的API](https://github.com/r-spacex/SpaceX-API)开发的只有三个页面的App样例。
+
+
 ![spaceXApp](screenshot.jpg)
+
+要完成这些，笔者分成了几个步骤，接下来我们一一讲述。
+
+```
+建立结构目录 -> 配置导航路由 -> 集成Redux（如果你需要的话）-> 接口数据处理 -> 渲染页面样式
+```
 
 
 ## 目录结构
@@ -14,14 +22,15 @@
 Hello World 之后，我首先创建如下目录
 
 ```
-  src
+src
     component  //组件
     dao        //数据处理
+    res        //静态资源
     router     //路由
     view       //视图
-      home
-      detail
-      list
+        home
+        detail
+        list
 ```
 
 如图我们创建目录之后，我们创建home、list、detail三个页面。
@@ -31,6 +40,7 @@ Hello World 之后，我首先创建如下目录
 我们可以先让每个页面返回一个简单的`Text`组成的`Component`，例如home
 
 ```js
+//view/home
 import React, { Component } from 'react';
 import { View, Text } from 'react-native';
 
@@ -72,7 +82,8 @@ const TabNavigator = createBottomTabNavigator(
 }, 
 //第二个参数为导航的一些基本配置对象StackNavigatorConfig
 {
-    //your navigator config
+    initialRouteName: 'Home'
+    //你的其他配置，此处省略
 })
 
 //创建一个Stack导航，其中Tab路由的screen即是Tab导航
@@ -85,6 +96,7 @@ const AppNavigator = createStackNavigator({
     }
 },{
     initialRouteName: 'Tab'
+    //你的其他配置，此处省略
 })
 //最后使用createAppContainer返回Component给入口App.js使用
 export default createAppContainer(AppNavigator);
@@ -94,7 +106,7 @@ export default createAppContainer(AppNavigator);
 然后修改入口App.js，使其`render`返回 路由组件
 
 ```js
-
+//App.js
 render() {
     return <AppContainer />
 }
@@ -105,12 +117,62 @@ render() {
 例如，在view中list页面，给`Text`添加`onPress`属性。
 
 ```js
+//view/list
     <Text onPress={()=>this.props.navigation.navigate('Detail')}> Go To Detail </Text>
 ```
 
 Reload一下，你就能看到一个简单的架子了，点击Tab的图标进行Tab跳转，点击List页面中 Go To Detail 可以跳转到Detail页面。
 
 > 注意，笔者目前使用的是3.x的版本，与2.x有一些差别，需要另外安装`react-native-gesture-handler` 并link其原生依赖。具体可以看[文档](https://reactnavigation.org/docs/zh-Hans/getting-started.html#%E5%AE%89%E8%A3%85)
+
+
+
+## 集成Redux
+
+Redux 是 JavaScript 状态容器，提供可预测化的状态管理。但是注意，它可能对你来说并不是必要的。
+
+我们可以在src新建reducers actions redux 三个目录，顾名思义，前两者分别集合了各个页面的reducer和action。
+
+其中我们可以在reducers目录下新建一个文件，使用`combineReducers`用来集合各个页面的reducer
+
+```js
+//reducers/index.js
+import { combineReducers } from 'redux'
+import {home} from './home'
+export default combineReducers({
+    home
+})
+```
+
+然后我们可以在redux目录下新建configStore文件，生成store方法供入口App.js使用
+
+```js
+import { createStore, applyMiddleware, compose } from "redux"
+import thunk from "redux-thunk"
+import reducer from '../reducers';
+
+const middlewares = [thunk];
+export default function configStore() {
+    const store = createStore(reducer, {}, applyMiddleware(...middlewares))
+    return store
+}
+```
+
+> 这里我们使用了比较常见的`redux-thunk`中间件来处理异步情况，当然你也可以选用`redux-saga`、`redux-promise`等其他中间件。
+
+接下来我们在App.js中使用`react-redux`的`Provider`把根组件套起来，这样我们任何层级的组件都可以通过`connect`来获取`store`。
+
+```js
+//App.js
+render() {
+    return <Provider store={configStore()}>
+        <AppContainer />
+    </Provider>
+}
+
+```
+
+就这么简单，我们的项目就集成好了Redux。
 
 
 ## 接口数据层处理
@@ -122,9 +184,7 @@ Reload一下，你就能看到一个简单的架子了，点击Tab的图标进�
 ```ts
 //BaseDao.js
 class BaseDao {
-    constructor() {
-
-    }
+    constructor() {}
     request(requestArgs) {
         return new Promise(async (resolve, reject) => {
             let task = RNFetchBlob.fetch(method, url, {...headers},data);
@@ -156,6 +216,8 @@ class Home extends BaseDao{
     }
 }
 ```
+
+如果你使用了redux，可能你需要为在`action`中添加一个
 
 接下来我们就可以在home的页面中调用`getLatestLaunch`来获取数据了,例如
 
@@ -200,7 +262,7 @@ render() {
 同理我们，可以新建ListDao用来存放list页面中数据请求，然后在list页面中渲染数据
 
 ```js
-//home/list.js 片段
+//list/index.js 片段
 _renderItem({item,index}){
     return <TouchableHighlight onPress={()=> this.props.navigation.navigate('Detail',{id:item.rocket_id,name:item.rocket_name})}>
         {/* item inner */}
@@ -228,12 +290,6 @@ render() {
 
 [其他源码](https://github.com/fancyqin/sampleApp)
 
-## 集成Redux
-
-todo
-
-
-
 
 ## 第三方组件
 
@@ -244,7 +300,7 @@ todo
 - `react-native-splash-screen` App启动图设置
 - `react-native-storage` 本地持久化
 - `react-native-linear-gradient` 渐变色组件
-- `lottie-react-native` `bodymovin`导入的动画解决方案
+- `lottie-react-native` AE `bodymovin`导入的动画解决方案
 - `react-native-pdf` PDF文件预览
 - `react-native-share` 分享组件
 - `react-native-device-info` 设备信息获取
