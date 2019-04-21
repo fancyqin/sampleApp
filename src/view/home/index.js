@@ -22,6 +22,7 @@ class Home extends Component {
 		
 	}
 
+	//渲染数据格式未严格判断，请悉知
 	render() {
 		let {loading,data} = this.props;
 		let {mission_name,links,details,launch_date_local,launch_site,rocket} = data;
