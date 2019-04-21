@@ -1,14 +1,23 @@
-import {LOADDATA} from '../actions/home'
+import {UPDATE_DATA,UPDATE_PAGELOADING} from '../actions/home'
 
 const initState = {
-    data:{}
+    data:{},
+    pageLoading: true
 }
 
 export const home = (state = initState, action)=> {
 
     switch (action.type) {
-        case LOADDATA:            
-            return state
+        case UPDATE_DATA:
+            return {
+                ...state,
+                data: action.data
+            }
+        case UPDATE_PAGELOADING:
+            return {
+                ...state,
+                pageLoading: action.bol
+            }
         default:
             return {
                 ...state

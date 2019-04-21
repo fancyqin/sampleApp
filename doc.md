@@ -131,7 +131,7 @@ Reload一下，你就能看到一个简单的架子了，点击Tab的图标进�
 
 Redux 是 JavaScript 状态容器，提供可预测化的状态管理。但是注意，它可能对你来说并不是必要的。
 
-我们可以在src新建reducers actions redux 三个目录，顾名思义，前两者分别集合了各个页面的reducer和action。
+我们可以在src新建reducers、actions、redux 三个目录，顾名思义，前两者分别集合了各个页面的reducer和action。
 
 其中我们可以在reducers目录下新建一个文件，使用`combineReducers`用来集合各个页面的reducer
 
@@ -147,6 +147,7 @@ export default combineReducers({
 然后我们可以在redux目录下新建configStore文件，生成store方法供入口App.js使用
 
 ```js
+//redux/configStore.js
 import { createStore, applyMiddleware, compose } from "redux"
 import thunk from "redux-thunk"
 import reducer from '../reducers';
@@ -217,9 +218,7 @@ class Home extends BaseDao{
 }
 ```
 
-如果你使用了redux，可能你需要为在`action`中添加一个
-
-接下来我们就可以在home的页面中调用`getLatestLaunch`来获取数据了,例如
+接下来我们就可以在home的页面`componentDidMount`时调用`getLatestLaunch`来获取数据了,例如
 
 ```js
 //home/index.js 片段
@@ -231,8 +230,22 @@ componentDidMount(){
         })
     })
 }
-
 ```
+
+当然如果你使用了redux，你可以添加一个`loadData`的`action`。
+
+```js
+//actions/home
+export const loadData = ()=>{
+    return (dispatch,getState) => {
+        HomeDao.getLatestLaunch().then(data => {
+            dispatch(updateData(data))
+            dispatch(updateLoading(false))
+        })
+    }
+}
+```
+
 
 ## 渲染页面
 
@@ -286,10 +299,9 @@ render() {
 }
 
 ```
-上述列表使用了RN中最常见的列表组件`FlatList`，关于`FlatList`，可讲的还有很多，小到下拉刷新、上拉加载，大到长列表内存回收等性能问题，本文暂不深入探讨。
+> 上述列表使用了RN中最常见的列表组件`FlatList`，关于`FlatList`，可讲的还有很多，小到下拉刷新、上拉加载，大到长列表内存回收等性能问题，本文暂不深入探讨。
 
-[其他源码](https://github.com/fancyqin/sampleApp)
-
+完整的代码请移步这里：[完整代码](https://github.com/fancyqin/sampleApp)
 
 ## 第三方组件
 
@@ -314,12 +326,12 @@ render() {
 - `react-native-image-picker` 选择相册、图片上传
 
 #### 修复类
-- `react-native-keyboard-aware-scroll-view` 含scroll等组件键盘弹出时候遮挡输入框问题修复
+- `react-native-keyboard-aware-scroll-view` 键盘遮挡输入框问题修复
     
 
 > 注意，有一些需要原生代码支持的第三方组件，需要link原生依赖，但是Android在link命令时候，有可能会出错，这就需要我们修改`MainApplication.java`、`settings.gradle`、`build.gradle`等文件手动link。
 
-> 另外注意，一些第三方组件使用的android sdk版本各不相同，这可能是你苦苦找寻的Android启动不了的环境问题之一。
+> 另外注意，一些第三方组件使用的Android SDK版本各不相同，这可能是你苦苦找寻的Android启动不了的环境问题之一。
 
 
 ## OVER

@@ -1,30 +1,29 @@
 import React, { Component,createRef } from 'react';
 import { View, Text,ScrollView, StyleSheet,Image ,ActivityIndicator,TouchableOpacity} from 'react-native';
-import HomeDao from '../../dao/HomeDao'
+import {connect} from 'react-redux'
+import {loadData} from '../../actions/home'
 import Gallery from '../../component/ImageGallery'
 
-export default class Home extends Component {
+class Home extends Component {
 	constructor(props) {
 		super(props);
 		this.gallery = createRef()
 	}
 
-	state={
-		loading:true,
-		data:{}
-	}
 
 	componentDidMount(){
-		HomeDao.getLatestLaunch().then(data => {
-			this.setState({
-				loading: false,
-				data
-			})
-		})
+		// HomeDao.getLatestLaunch().then(data => {
+		// 	this.setState({
+		// 		loading: false,
+		// 		data
+		// 	})
+		// })
+		this.props.loadData();
+		
 	}
 
 	render() {
-		let {loading,data} = this.state;
+		let {loading,data} = this.props;
 		let {mission_name,links,details,launch_date_local,launch_site,rocket} = data;
 		return (
 			<View style={styles.wrap}>
@@ -146,3 +145,21 @@ const styles = StyleSheet.create({
 	}
 	
 })
+
+
+const mapStateToProps = (state, ownProps)=> {
+    return {
+        data: state.home.data,
+        loading: state.home.pageLoading,
+    }
+};
+
+const mapDispatchProps = (dispatch,ownProps)=> {
+    return {
+        loadData: ()=> {
+            dispatch(loadData());
+        }
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchProps)(Home)
